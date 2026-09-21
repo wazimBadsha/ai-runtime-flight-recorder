@@ -13,4 +13,11 @@ jobs:
         with:
           python-version: "3.11"
       - run: python -m unittest discover -s tests -p "test_*.py"
+        env:
+          PYTHONPATH: src
       - run: python examples/intervention_demo.py
+        env:
+          PYTHONPATH: src
+      - run: python examples/full_demo.py
+        env:
+          PYTHONPATH: src
