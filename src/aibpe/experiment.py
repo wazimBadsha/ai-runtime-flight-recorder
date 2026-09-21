@@ -18,8 +18,16 @@ class ExperimentResult:
     replacement: Any
 
     @property
-    def changed(self) -> bool:
+    def dependency_changed(self) -> bool:
         return self.baseline_fingerprint != self.candidate_fingerprint
+
+    @property
+    def behavior_changed(self) -> bool:
+        return self.baseline_output != self.candidate_output
+
+    @property
+    def intervention_supported(self) -> bool:
+        return self.dependency_changed and self.behavior_changed
 
 def run_intervention(
     baseline: Mapping[str, Any],
