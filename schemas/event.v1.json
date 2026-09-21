@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://wazimbadsha.github.io/aibpe/schemas/event.v1.json",
+  "title": "AIBPE Event v1",
+  "type": "object",
+  "required": ["run_id", "sequence", "event_type", "payload", "producer", "event_id", "timestamp_ns", "schema_version", "content_hash"],
+  "properties": {
+    "run_id": {"type": "string"},
+    "sequence": {"type": "integer", "minimum": 0},
+    "event_type": {"type": "string"},
+    "payload": {"type": "object"},
+    "producer": {"type": "string"},
+    "event_id": {"type": "string"},
+    "timestamp_ns": {"type": "integer", "minimum": 0},
+    "schema_version": {"type": "string"},
+    "previous_hash": {"type": ["string", "null"]},
+    "content_hash": {"type": "string", "minLength": 64, "maxLength": 64}
+  }
+}
