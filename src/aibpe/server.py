@@ -6,6 +6,7 @@ from pathlib import Path
 def create_app(root: str = ".aibpe"):
     try:
         from fastapi import FastAPI, HTTPException
+        from fastapi.responses import FileResponse
     except ImportError as exc:
         raise RuntimeError("Install the server extra: pip install 'aibpe[server]'") from exc
 
@@ -31,7 +32,19 @@ def create_app(root: str = ".aibpe"):
         if not path.exists():
             raise HTTPException(status_code=404, detail="run not found")
         manifest = json.loads((path / "manifest.json").read_text(encoding="utf-8"))
-        events = [json.loads(x) for x in (path / "events.jsonl").read_text(encoding="utf-8").splitlines() if x]
+        events = [
+            json.loads(x)
+            for x in (path / "events.jsonl").read_text(encoding="utf-8").splitlines()
+            if x
+        ]
         return {"manifest": manifest, "events": events}
+
+    ui_index = Path("ui/index.html")
+
+    @app.get("/")
+    def home():
+        if ui_index.exists():
+            return FileResponse(ui_index)
+        return {"name": "AIBPE Explorer", "docs": "/docs"}
 
     return app
