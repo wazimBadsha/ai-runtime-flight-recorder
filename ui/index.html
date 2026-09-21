@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AIBPE Explorer</title>
+<style>
+body{font-family:system-ui,sans-serif;margin:0;background:#0b1020;color:#e9edf7}
+main{max-width:1100px;margin:auto;padding:32px}
+.card{background:#141b31;border:1px solid #28314f;border-radius:12px;padding:18px;margin:12px 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
+button,select{padding:10px 14px;border-radius:8px;border:1px solid #3b476d;background:#1b2543;color:#fff}
+pre{overflow:auto}
+small{opacity:.7}
+</style>
+</head>
+<body>
+<main>
+<h1>AIBPE Explorer</h1>
+<p><small>Behavioral provenance for AI systems</small></p>
+<div class="grid">
+  <div class="card"><strong>Runs</strong><div id="runs">Loading...</div></div>
+  <div class="card"><strong>API</strong><div><code>/runs</code> <code>/runs/&lt;id&gt;</code> <code>/health</code></div></div>
+</div>
+<div class="card">
+  <h2>Selected run</h2>
+  <select id="run"></select>
+  <button id="inspect">Inspect</button>
+  <pre id="detail">Select a run.</pre>
+</div>
+</main>
+<script>
+async function loadRuns(){
+  const r=await fetch('/runs');
+  const runs=await r.json();
+  document.getElementById('runs').textContent=String(runs.length);
+  const select=document.getElementById('run');
+  select.innerHTML='';
+  runs.forEach(function(x){
+    const option=document.createElement('option');
+    option.value=x; option.textContent=x; select.appendChild(option);
+  });
+}
+async function loadRun(){
+  const id=document.getElementById('run').value;
+  if(!id)return;
+  const r=await fetch('/runs/'+encodeURIComponent(id));
+  document.getElementById('detail').textContent=JSON.stringify(await r.json(),null,2);
+}
+document.getElementById('inspect').addEventListener('click',loadRun);
+loadRuns();
+</script>
+</body>
+</html>
