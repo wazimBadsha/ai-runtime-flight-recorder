@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://wazimbadsha.github.io/aibpe/schemas/manifest.v1.json",
+  "title": "AIBPE Manifest v1",
+  "type": "object",
+  "required": ["run_id", "created_at_ns", "schema_version"],
+  "properties": {
+    "run_id": {"type": "string"},
+    "created_at_ns": {"type": "integer"},
+    "schema_version": {"const": "aibpe.manifest.v1"},
+    "runtime": {"type": "object"},
+    "model": {"type": "object"},
+    "prompt": {"type": "object"},
+    "retrieval": {"type": "object"},
+    "memory": {"type": "object"},
+    "tools": {"type": "object"},
+    "policy": {"type": "object"},
+    "environment": {"type": "object"},
+    "artifacts": {"type": "array"}
+  }
+}
