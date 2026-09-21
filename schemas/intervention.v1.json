@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://wazimbadsha.github.io/aibpe/schemas/intervention.v1.json",
+  "title": "AIBPE Intervention v1",
+  "type": "object",
+  "required": ["path", "replacement"],
+  "properties": {
+    "path": {"type": "string", "minLength": 1},
+    "replacement": {},
+    "rationale": {"type": "string"}
+  },
+  "additionalProperties": false
+}
