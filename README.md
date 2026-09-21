@@ -1,113 +1,130 @@
-# AI Behavioral Provenance Engine (AIBPE)
+# AIBPE — AI Behavioral Provenance Engine
 
-> **Observe the run. Map the causes. Test the change.**
+> Observe the run. Map the causes. Test the change.
 
-A vendor-neutral, open-source runtime for understanding *why* an AI/LLM/agent system changed behavior.
+AIBPE is an open-source, vendor-neutral runtime for understanding why an AI/LLM/agent system changed behavior.
 
-AIBPE is not another tracing dashboard and not another generic record/replay tool. It builds a **behavioral provenance graph** for each run, computes reproducible fingerprints over the inputs that can affect behavior, and supports **controlled interventions** that change one declared variable at a time.
+It records structured runtime evidence, builds a behavioral provenance model, computes fingerprints over declared dependencies, and supports controlled interventions.
 
-## Why
+## The problem
 
-Modern AI systems are assembled from moving parts:
+Modern AI behavior depends on more than the model:
 
-- model/version and inference parameters
+- model/version and inference settings
 - prompt/template versions
-- retrieved documents and ranking
+- retrieved context
 - memory state
-- tool definitions and tool outputs
-- policies/guardrails
-- runtime and dependency versions
-- external environment state
+- tool definitions and outputs
+- policies and guardrails
+- runtime/environment dependencies
 
-When behavior changes, a trace can tell you *what happened*, but teams still need a structured way to ask:
+A normal trace answers "what happened."
 
-> **Which changed input is actually associated with the behavioral change, and what evidence do we have?**
+AIBPE is designed to make the next question inspectable:
 
-AIBPE turns that question into an inspectable artifact.
+> Which behavioral dependency changed, what downstream behavior changed with it, and what evidence did the controlled experiment produce?
 
-## Core workflow
+## Architecture
 
-```text
 AI / Agent Runtime
-      |
-      v
-AIBPE Recorder
-      |
-      +--> Canonical Events
-      +--> Artifact Hashes
-      +--> Dependency Edges
-      |
-      v
-Behavioral Provenance Graph
-      |
-      +--> Fingerprint
-      +--> Compare
-      +--> Intervention Plan
-      +--> Re-run
-      |
-      v
-Evidence Report
-```
+        |
+        v
+   AIBPE Recorder
+        |
+        +-- canonical events
+        +-- artifact hashes
+        +-- dependency metadata
+        |
+        v
+Behavioral Provenance
+        |
+        +-- fingerprint
+        +-- run diff
+        +-- trajectory diff
+        +-- intervention
+        |
+        v
+Evidence Artifact
 
-### Example
+## Implemented in v0.2
 
-```bash
-aibpe record --config examples/basic.yaml
-aibpe inspect runs/01
-aibpe compare runs/01 runs/02
-aibpe intervene runs/02 --change retrieval.corpus=docs-v3
-aibpe report runs/02
-```
-
-## Design principles
-
-1. **Vendor neutral** — works at the application boundary; adapters are optional.
-2. **Evidence over narrative** — reports cite concrete events, hashes and artifacts.
-3. **No false causality** — the engine reports *candidate contributors* unless a controlled intervention supports the conclusion.
-4. **Reproducibility is explicit** — replay modes are labelled exactly; model determinism is never assumed.
-5. **Privacy by construction** — payload capture can be redacted, hashed or omitted.
-6. **Open schema first** — the on-disk format is documented and usable without the server.
-
-## V0.1 scope
-
-- Python SDK and CLI
-- append-only event journal
+- immutable event envelope with hash chaining
+- run manifest for model, prompt, retrieval, memory, tools, policy and environment
+- local JSONL event store
 - content-addressed artifacts
-- behavioral fingerprinting
-- structural and semantic diff hooks
-- provenance graph construction
-- one-variable intervention plans
-- offline deterministic demo runtime
-- verification and tamper-evident hash chains
-- OpenTelemetry bridge
-- SQLite local index
-- JSON/JSONL interchange
-- test suite and CI
+- behavioral fingerprints
+- structural dependency diff
+- intervention executor
+- evidence semantics separating dependency change from behavior change
+- trajectory comparison
+- retrieval/memory/policy/tool boundary capture
+- OpenAI-compatible HTTP adapter
+- MCP-style tool recorder
+- SQLite run index
+- optional FastAPI explorer API
+- browser-based explorer UI
+- Docker / Compose packaging
+- public JSON schemas
+- CI, tests, security and production guidance
 
-## Repository map
+## Quick start
 
-```text
-src/aibpe/             # runtime + core engine
-schemas/               # public event and artifact schemas
-examples/              # offline reproducible scenarios
-docs/                  # architecture, specification, security
-tests/                 # unit/integration tests
-medium/                # technical article
-.github/workflows/     # CI
-```
+    python -m pip install -e .
+    PYTHONPATH=src python examples/full_demo.py
+    PYTHONPATH=src python -m unittest discover -s tests -p 'test_*.py'
 
-## Status
+    aibpe record-demo --run-id demo --corpus docs-v1
+    aibpe inspect demo
+    aibpe replay demo
+    aibpe verify demo
 
-**Alpha / production-oriented reference implementation.**
+Optional explorer:
 
-The project is designed around production constraints, but deployment-specific security, durability, scale and compliance requirements must be validated for each environment.
+    python -m pip install -e '.[server]'
+    PYTHONPATH=src uvicorn aibpe.serve:app --reload
+
+Then open http://127.0.0.1:8000.
+
+## Evidence model
+
+AIBPE deliberately distinguishes:
+
+Observed change
+      |
+Candidate contributor
+      |
+Intervention-supported contributor
+      |
+Stronger causal interpretation
+
+The library does not convert a model-generated explanation into a causal fact.
 
 ## Research positioning
 
-Current open-source projects already provide strong record/replay and trace-diff capabilities. AIBPE deliberately focuses on the layer above raw replay: **structured behavioral provenance + controlled intervention evidence**.
+Record/replay, deterministic debugging, trajectory comparison and counterfactual agent systems are already active open-source areas. AIBPE therefore does not claim record/replay as a novel invention.
 
-This is not a claim that no one else has ever implemented any individual feature. The project's scope is intentionally defined around the combination and its open specification.
+Its focus is the open contract around:
+
+behavioral provenance graph + declared intervention + evidence artifact
+
+See docs/RESEARCH.md.
+
+## Repository map
+
+src/aibpe/          core engine
+schemas/            public contracts
+examples/           reproducible demos
+tests/              automated verification
+docs/               architecture/spec/product/security
+ui/                 explorer interface
+medium/             technical article
+
+## Status
+
+v0.2 Alpha — production-oriented reference implementation.
+
+The local runtime is functional. Production deployment still requires environment-specific hardening for authentication, encryption, retention, distributed durability, multi-tenancy and trust-boundary signing.
 
 ## License
 
-Apache-2.0.
+Apache-2.0
