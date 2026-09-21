@@ -1,0 +1,9 @@
+services:
+  explorer:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./.aibpe:/app/.aibpe
+    environment:
+      AIBPE_STORE: /app/.aibpe
