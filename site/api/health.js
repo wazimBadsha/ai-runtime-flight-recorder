@@ -1,0 +1,1 @@
+export default function handler(_req,res){console.log(JSON.stringify({event:"cloud_demo.health",status:"ok"}));res.status(200).json({status:"ok",mode:"public-demo",persistence:"read-only-fixture"});}
