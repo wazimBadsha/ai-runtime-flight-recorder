@@ -1,0 +1,1 @@
+export default function handler(_req,res){console.log(JSON.stringify({event:"cloud_demo.runs.listed",count:2}));res.status(200).json({runs:[{id:"baseline",status:"completed",dependencyChange:false,finalOutput:"answer[answer-v1|docs-v2]"},{id:"candidate",status:"completed",dependencyChange:true,finalOutput:"answer[answer-v1|docs-v3]"}]});}
